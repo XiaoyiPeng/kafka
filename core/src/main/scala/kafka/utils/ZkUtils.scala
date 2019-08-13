@@ -501,7 +501,7 @@ object ZkUtils extends Logging {
     }
     ret
   }
-
+  // 这个方法以前还没注意到，get assigned replica list of topic;replica list 选举的数据源;
   def getReplicaAssignmentForTopics(zkClient: ZkClient, topics: Seq[String]): mutable.Map[TopicAndPartition, Seq[Int]] = {
     val ret = new mutable.HashMap[TopicAndPartition, Seq[Int]]
     topics.foreach { topic =>

@@ -322,7 +322,7 @@ class ReplicaManager(val config: KafkaConfig,
       }
     }
   }
-
+  //LeaderAndIsrRequest 请求来自 controller,每个broker将自己持有的TopicPartition标识为固定角色（leader,follower）
   def becomeLeaderOrFollower(leaderAndISRRequest: LeaderAndIsrRequest,
                              offsetManager: OffsetManager): (collection.Map[(String, Int), Short], Short) = {
     leaderAndISRRequest.partitionStateInfos.foreach { case ((topic, partition), stateInfo) =>
@@ -342,7 +342,7 @@ class ReplicaManager(val config: KafkaConfig,
       } else {
         val controllerId = leaderAndISRRequest.controllerId
         val correlationId = leaderAndISRRequest.correlationId
-        controllerEpoch = leaderAndISRRequest.controllerEpoch
+        controllerEpoch = leaderAndISRRequest.controllerEpoch //两个epoch，一个controller epoch，一个partitionLeaderEpoch;
 
         // First check partition's leader epoch
         val partitionState = new HashMap[Partition, PartitionStateInfo]()
@@ -369,7 +369,7 @@ class ReplicaManager(val config: KafkaConfig,
             responseMap.put((topic, partitionId), ErrorMapping.StaleLeaderEpochCode)
           }
         }
-
+        //把上述满足条件的Partitions分为两拨，一个应该变成leader，剩下的变成follower
         val partitionsTobeLeader = partitionState
           .filter{ case (partition, partitionStateInfo) => partitionStateInfo.leaderIsrAndControllerEpoch.leaderAndIsr.leader == config.brokerId}
         val partitionsToBeFollower = (partitionState -- partitionsTobeLeader.keys)

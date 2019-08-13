@@ -429,7 +429,7 @@ class KafkaController(val config : KafkaConfig, zkClient: ZkClient, val brokerSt
    *
    * Note that we don't need to refresh the leader/isr cache for all topic/partitions at this point.  This is because
    * the partition state machine will refresh our cache for us when performing leader election for all new/offline
-   * partitions coming online.
+   * partitions coming online.Broker 意外DOWN掉之后，controller该做些什么事？
    */
   def onBrokerFailure(deadBrokers: Seq[Int]) {
     info("Broker failure callback for %s".format(deadBrokers.mkString(",")))
@@ -477,7 +477,9 @@ class KafkaController(val config : KafkaConfig, zkClient: ZkClient, val brokerSt
    * This callback is invoked by the topic change callback with the list of failed brokers as input.
    * It does the following -
    * 1. Move the newly created partitions to the NewPartition state
-   * 2. Move the newly created partitions from NewPartition->OnlinePartition state
+   * 2. Move the newly created partitions from NewPartition->OnlinePartition state*
+    * 新创建的Topic的Partition,Replica的状态变化,及每个状态触发的事件;
+    * Partition的选举：选取 ISR List中的第一个replica;
    */
   def onNewPartitionCreation(newPartitions: Set[TopicAndPartition]) {
     info("New partition creation callback for %s".format(newPartitions.mkString(",")))
@@ -494,7 +496,7 @@ class KafkaController(val config : KafkaConfig, zkClient: ZkClient, val brokerSt
    * RAR = Reassigned replicas
    * OAR = Original list of replicas for partition
    * AR = current assigned replicas
-   *
+   * 注意：下面的 "+" ,"-" 应该就是两个Seq{Int} 的加减;
    * 1. Update AR in ZK with OAR + RAR.
    * 2. Send LeaderAndIsr request to every replica in OAR + RAR (with AR as OAR + RAR). We do this by forcing an update
    *    of the leader epoch in zookeeper.
@@ -721,7 +723,7 @@ class KafkaController(val config : KafkaConfig, zkClient: ZkClient, val brokerSt
     info("Currently shutting brokers in the cluster: %s".format(controllerContext.shuttingDownBrokerIds))
     info("Current list of topics in the cluster: %s".format(controllerContext.allTopics))
   }
-
+  //replica 选举是选举出 assigned replica list中的第一个 replica ？
   private def initializePreferredReplicaElection() {
     // initialize preferred replica election state
     val partitionsUndergoingPreferredReplicaElection = ZkUtils.getPartitionsUndergoingPreferredReplicaElection(zkClient)

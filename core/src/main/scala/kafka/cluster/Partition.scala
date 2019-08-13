@@ -229,7 +229,7 @@ class Partition(val topic: String,
     }
   }
 
-  def updateLeaderHWAndMaybeExpandIsr(replicaId: Int) {
+  def updateLeaderHWAndMaybeExpandIsr(replicaId: Int) { //在这里可能把 replica 加入ISR中;
     inWriteLock(leaderIsrUpdateLock) {
       // check if this replica needs to be added to the ISR
       leaderReplicaIfLocal() match {
