@@ -405,6 +405,8 @@ class KafkaController(val config : KafkaConfig, zkClient: ZkClient, val brokerSt
     // to see if these brokers can become leaders for some/all of those
     partitionStateMachine.triggerOnlinePartitionStateChange()
     // check if reassignment of some partitions need to be restarted
+    // 检查是否有意外终止的 reassignment 计划(针对新启动Broker上的Replica)需要重启;
+    // 这也解释了为什么迁移controller上的几个partition 的 reassignment 计划一直挂起（suspend）时，重启controller就可以了。
     val partitionsWithReplicasOnNewBrokers = controllerContext.partitionsBeingReassigned.filter {
       case (topicAndPartition, reassignmentContext) => reassignmentContext.newReplicas.exists(newBrokersSet.contains(_))
     }
@@ -496,7 +498,7 @@ class KafkaController(val config : KafkaConfig, zkClient: ZkClient, val brokerSt
    * RAR = Reassigned replicas
    * OAR = Original list of replicas for partition
    * AR = current assigned replicas
-   * 注意：下面的 "+" ,"-" 应该就是两个Seq{Int} 的加减;
+   * 注意：下面的 "+" ,"-" 是两个Seq[Int] 的加减;
    * 1. Update AR in ZK with OAR + RAR.
    * 2. Send LeaderAndIsr request to every replica in OAR + RAR (with AR as OAR + RAR). We do this by forcing an update
    *    of the leader epoch in zookeeper.
@@ -603,7 +605,7 @@ class KafkaController(val config : KafkaConfig, zkClient: ZkClient, val brokerSt
             if(aliveNewReplicas == newReplicas) {
               info("Handling reassignment of partition %s to new replicas %s".format(topicAndPartition, newReplicas.mkString(",")))
               // first register ISR change listener
-              watchIsrChangesForReassignedPartition(topic, partition, reassignedPartitionContext)
+              watchIsrChangesForReassignedPartition(topic, partition, reassignedPartitionContext)// reassignment 进行到中间，ISR会发生变化;
               controllerContext.partitionsBeingReassigned.put(topicAndPartition, reassignedPartitionContext)
               // mark topic ineligible for deletion for the partitions being reassigned
               deleteTopicManager.markTopicIneligibleForDeletion(Set(topic))
