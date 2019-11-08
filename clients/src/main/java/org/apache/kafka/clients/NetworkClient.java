@@ -302,11 +302,11 @@ public class NetworkClient implements KafkaClient {
             }
         }
     }
-
+    //在这里处理请求元数据后的response;这段代码在producer中运行;
     private void handleMetadataResponse(RequestHeader header, Struct body, long now) {
         this.metadataFetchInProgress = false;
         MetadataResponse response = new MetadataResponse(body);
-        Cluster cluster = response.cluster();
+        Cluster cluster = response.cluster();//在这里更新 metadata的cluster,如果部分集群中的broker没有跟controller元信息保持同步，则会出错;
         // don't update the cluster if there are no valid nodes...the topic we want may still be in the process of being
         // created which means we will get errors and no nodes until it exists
         if (cluster.nodes().size() > 0) {
@@ -362,7 +362,7 @@ public class NetworkClient implements KafkaClient {
     }
 
     /**
-     * Create a metadata request for the given topics
+     * Create a metadata request for the given topics,这个对应的是服务侧的 METADATA,
      */
     private ClientRequest metadataRequest(long now, int node, Set<String> topics) {
         MetadataRequest metadata = new MetadataRequest(new ArrayList<String>(topics));

@@ -327,7 +327,7 @@ public class KafkaProducer<K,V> implements Producer<K,V> {
             } catch (ClassCastException cce) {
                 throw new SerializationException("Can't convert value of class " + record.value().getClass().getName() +
                         " to class " + producerConfig.getClass(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG).getName() +
-                        " specified in value.serializer");
+                        " specigfied in value.serializer");
             }
             ProducerRecord<byte[], byte[]> serializedRecord = new ProducerRecord<byte[], byte[]>(record.topic(), record.partition(), serializedKey, serializedValue);
             int partition = partitioner.partition(serializedRecord, metadata.fetch());

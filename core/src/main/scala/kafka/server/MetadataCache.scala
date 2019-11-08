@@ -109,7 +109,7 @@ private[server] class MetadataCache {
       }
     }
   }
-
+  //from controller;
   def updateCache(updateMetadataRequest: UpdateMetadataRequest,
                   brokerId: Int,
                   stateChangeLogger: StateChangeLogger) {

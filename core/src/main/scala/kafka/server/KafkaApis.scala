@@ -59,7 +59,7 @@ class KafkaApis(val requestChannel: RequestChannel,
         case RequestKeys.ProduceKey => handleProducerOrOffsetCommitRequest(request)
         case RequestKeys.FetchKey => handleFetchRequest(request)
         case RequestKeys.OffsetsKey => handleOffsetRequest(request)
-        case RequestKeys.MetadataKey => handleTopicMetadataRequest(request)
+        case RequestKeys.MetadataKey => handleTopicMetadataRequest(request) // from producer;
         case RequestKeys.LeaderAndIsrKey => handleLeaderAndIsrRequest(request)
         case RequestKeys.StopReplicaKey => handleStopReplicaRequest(request)
         case RequestKeys.UpdateMetadataKey => handleUpdateMetadataRequest(request)
@@ -346,7 +346,7 @@ class KafkaApis(val requestChannel: RequestChannel,
     val dataRead = replicaManager.readMessageSets(fetchRequest)
 
     // if the fetch request comes from the follower,
-    // update its corresponding log end offset
+    // update its corresponding log end offset > follower端读取到数据后，更角色是leader的Replica的hw;同时Partition下的，不是leader角色的replica的LEO也需要更新;
     if(fetchRequest.isFromFollower)
       recordFollowerLogEndOffsets(fetchRequest.replicaId, dataRead.mapValues(_.offset))
 

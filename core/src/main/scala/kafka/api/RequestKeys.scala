@@ -24,7 +24,7 @@ object RequestKeys {
   val ProduceKey: Short = 0
   val FetchKey: Short = 1
   val OffsetsKey: Short = 2
-  val MetadataKey: Short = 3
+  val MetadataKey: Short = 3 //对应的 ApiKeys.METADATA;来自于producer端;
   val LeaderAndIsrKey: Short = 4
   val StopReplicaKey: Short = 5
   val UpdateMetadataKey: Short = 6
@@ -42,8 +42,8 @@ object RequestKeys {
         MetadataKey -> ("Metadata", TopicMetadataRequest.readFrom),
         LeaderAndIsrKey -> ("LeaderAndIsr", LeaderAndIsrRequest.readFrom),
         StopReplicaKey -> ("StopReplica", StopReplicaRequest.readFrom),
-        UpdateMetadataKey -> ("UpdateMetadata", UpdateMetadataRequest.readFrom),
-        ControlledShutdownKey -> ("ControlledShutdown", ControlledShutdownRequest.readFrom),
+        UpdateMetadataKey -> ("UpdateMetadata", UpdateMetadataRequest.readFrom),//这个请求会来自那里？
+        ControlledShutdownKey -> ("ControlledShutdown", ControlledShutdownRequest.readFrom),//来自 broker shutdown 时
         OffsetCommitKey -> ("OffsetCommit", OffsetCommitRequest.readFrom),
         OffsetFetchKey -> ("OffsetFetch", OffsetFetchRequest.readFrom),
         ConsumerMetadataKey -> ("ConsumerMetadata", ConsumerMetadataRequest.readFrom),
