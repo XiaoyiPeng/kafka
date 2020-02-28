@@ -23,6 +23,8 @@ import java.util.Properties
 // this class will be removed once we fully rolled out 0.9
 trait BaseProducer {
   def send(topic: String, key: Array[Byte], value: Array[Byte])
+  def send(topic: String, partition: Integer, key: Array[Byte], value: Array[Byte])
+
   def close()
 }
 
@@ -37,6 +39,16 @@ class NewShinyProducer(producerProps: Properties) extends BaseProducer {
 
   override def send(topic: String, key: Array[Byte], value: Array[Byte]) {
     val record = new ProducerRecord[Array[Byte],Array[Byte]](topic, key, value)
+    if(sync) {
+      this.producer.send(record).get()
+    } else {
+      this.producer.send(record,
+        new ErrorLoggingCallback(topic, key, value, false))
+    }
+  }
+
+  override def send(topic: String, partition: Integer, key: Array[Byte], value: Array[Byte]): Unit = {
+    val record = new ProducerRecord[Array[Byte],Array[Byte]](topic, partition, key, value)//分区数必须保持一致;
     if(sync) {
       this.producer.send(record).get()
     } else {

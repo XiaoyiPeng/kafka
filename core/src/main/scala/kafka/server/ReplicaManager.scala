@@ -293,10 +293,10 @@ class ReplicaManager(val config: KafkaConfig,
       getLeaderReplicaIfLocal(topic, partition)
     trace("Fetching log segment for topic, partition, offset, size = " + (topic, partition, offset, maxSize))
     val maxOffsetOpt =
-      if (Request.isValidBrokerId(fromReplicaId))
+      if (Request.isValidBrokerId(fromReplicaId)) //如果读请求来自follower,则读取的最大offset为replica as leader 的 high water mark;
         None
       else
-        Some(localReplica.highWatermark.messageOffset)
+        Some(localReplica.highWatermark.messageOffset) //否则读取的最大size,应该是:fetch.message.max.bytes
     val fetchInfo = localReplica.log match {
       case Some(log) =>
         log.read(offset, maxSize, maxOffsetOpt)

@@ -56,13 +56,13 @@ class KafkaApis(val requestChannel: RequestChannel,
     try{
       trace("Handling request: " + request.requestObj + " from client: " + request.remoteAddress)
       request.requestId match {
-        case RequestKeys.ProduceKey => handleProducerOrOffsetCommitRequest(request)
+        case RequestKeys.ProduceKey => handleProducerOrOffsetCommitRequest(request) // from producer;
         case RequestKeys.FetchKey => handleFetchRequest(request)
         case RequestKeys.OffsetsKey => handleOffsetRequest(request)
         case RequestKeys.MetadataKey => handleTopicMetadataRequest(request) // from producer;
         case RequestKeys.LeaderAndIsrKey => handleLeaderAndIsrRequest(request)
         case RequestKeys.StopReplicaKey => handleStopReplicaRequest(request)
-        case RequestKeys.UpdateMetadataKey => handleUpdateMetadataRequest(request)
+        case RequestKeys.UpdateMetadataKey => handleUpdateMetadataRequest(request) // from controller;
         case RequestKeys.ControlledShutdownKey => handleControlledShutdownRequest(request)
         case RequestKeys.OffsetCommitKey => handleOffsetCommitRequest(request)
         case RequestKeys.OffsetFetchKey => handleOffsetFetchRequest(request)

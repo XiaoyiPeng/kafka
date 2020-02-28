@@ -257,7 +257,8 @@ object MirrorMaker extends Logging {
       info("Starting mirror maker consumer thread " + threadName)
       try {
         for (msgAndMetadata <- stream) {
-          val data = new ProducerRecord[Array[Byte],Array[Byte]](msgAndMetadata.topic, msgAndMetadata.key, msgAndMetadata.message)
+          //val data = new ProducerRecord[Array[Byte],Array[Byte]](msgAndMetadata.topic, msgAndMetadata.key, msgAndMetadata.message)
+          val data = new ProducerRecord[Array[Byte],Array[Byte]](msgAndMetadata.topic, msgAndMetadata.partition, msgAndMetadata.key, msgAndMetadata.message)
           mirrorDataChannel.put(data)
         }
       } catch {
@@ -306,7 +307,8 @@ object MirrorMaker extends Logging {
             info("Received shutdown message")
             return
           }
-          producer.send(data.topic(), data.key(), data.value())
+          //producer.send(data.topic(), data.key(), data.value())
+          producer.send(data.topic(), data.partition(), data.key(), data.value())
         }
       } catch {
         case t: Throwable => {

@@ -132,7 +132,7 @@ class RangeAssignor() extends PartitionAssignor with Logging {
 
       info("Consumer " + ctx.consumerId + " rebalancing the following partitions: " + curPartitions +
         " for topic " + topic + " with consumers: " + curConsumers)
-
+      //假设n=分区数/消费者数量，m=分区数%消费者数量，那么前m个消费者每个分配n+1个分区，后面的（消费者数量-m）个消费者每个分配n个分区。
       for (consumerThreadId <- consumerThreadIdSet) {
         val myConsumerPosition = curConsumers.indexOf(consumerThreadId)
         assert(myConsumerPosition >= 0)

@@ -86,7 +86,7 @@ class ConsumerIterator[K, V](private val channel: BlockingQueue[FetchedDataChunk
         current.set(localCurrent)
       }
       // if we just updated the current chunk and it is empty that means the fetch size is too small!
-      if(currentDataChunk.messages.validBytes == 0)
+      if(currentDataChunk.messages.validBytes == 0) //consumer每次从broker的LogSegment中fetch ${fetch.message.max.bytes},在consumer才拼成message record;
         throw new MessageSizeTooLargeException("Found a message larger than the maximum fetch size of this consumer on topic " +
                                                "%s partition %d at fetch offset %d. Increase the fetch size, or decrease the maximum message size the broker will allow."
                                                .format(currentDataChunk.topicInfo.topic, currentDataChunk.topicInfo.partitionId, currentDataChunk.fetchOffset))

@@ -92,7 +92,7 @@ object ByteBufferMessageSet {
  * Option 1: From a ByteBuffer which already contains the serialized message set. Consumers will use this method.
  *
  * Option 2: Give it a list of messages along with instructions relating to serialization format. Producers will use this method.
- * 
+ * // producer，consumer 使用的消息传递的格式;在服务端是 FileMessageSet,FileMessageSet#writeTo被服务端调用后，数据写到SocketChannel,然后在consumer端恢复成 ByteBufferMessageSet;
  */
 class ByteBufferMessageSet(val buffer: ByteBuffer) extends MessageSet with Logging {
   private var shallowValidByteCount = -1
@@ -150,7 +150,7 @@ class ByteBufferMessageSet(val buffer: ByteBuffer) extends MessageSet with Loggi
       def innerDone():Boolean = (innerIter == null || !innerIter.hasNext)
 
       def makeNextOuter: MessageAndOffset = {
-        // if there isn't at least an offset and size, we are done
+        // if there isn't at least an offset and size, we are done(offset 8bytes + message size 4bytes)
         if (topIter.remaining < 12)
           return allDone()
         val offset = topIter.getLong()
@@ -228,7 +228,7 @@ class ByteBufferMessageSet(val buffer: ByteBuffer) extends MessageSet with Loggi
   def sizeInBytes: Int = buffer.limit
   
   /**
-   * The total number of bytes in this message set not including any partial, trailing messages
+   * The total number of bytes in this message set not including any partial, trailing messages,有效的整条消息组成的集合的字节数;
    */
   def validBytes: Int = shallowValidBytes
 

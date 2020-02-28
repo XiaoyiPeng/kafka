@@ -99,7 +99,7 @@ class FileMessageSet private[kafka](@volatile var file: File,
     new FileMessageSet(file,
                        channel,
                        start = this.start + position,
-                       end = math.min(this.start + position + size, sizeInBytes()))
+                       end = math.min(this.start + position + size, sizeInBytes()))// 构造一个FileMessageSet，然后通过this#makeNext()迭代出Message,直到读取的位置超过构造器中的end
   }
   
   /**

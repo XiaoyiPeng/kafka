@@ -134,7 +134,7 @@ object ClientUtils extends Logging{
    }
 
    /**
-    * Creates a blocking channel to the offset manager of the given group
+    * Creates a blocking channel to the offset manager of the given group;//如果offset存储引擎是zookeeper，则不需要调用该方法;
     */
    def channelToOffsetManager(group: String, zkClient: ZkClient, socketTimeoutMs: Int = 3000, retryBackOffMs: Int = 1000) = {
      var queryChannel = channelToAnyBroker(zkClient)
@@ -169,7 +169,7 @@ object ClientUtils extends Logging{
          }
        }
 
-       val coordinator = coordinatorOpt.get
+       val coordinator = coordinatorOpt.get//找一个broker，开辟一个consumer提交或者查看offset的网络通道(offsetManagerChannel);
        if (coordinator.host == queryChannel.host && coordinator.port == queryChannel.port) {
          offsetManagerChannelOpt = Some(queryChannel)
        } else {

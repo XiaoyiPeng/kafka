@@ -654,7 +654,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
          */
         closeFetchers(cluster, kafkaMessageAndMetadataStreams, myTopicThreadIdsMap)
 
-        releasePartitionOwnership(topicRegistry)
+        releasePartitionOwnership(topicRegistry)//释放对旧的TopicPartition的所有权;
 
         val assignmentContext = new AssignmentContext(group, consumerIdString, config.excludeInternalTopics, zkClient)
         val partitionOwnershipDecision = partitionAssignor.assign(assignmentContext)
