@@ -38,7 +38,7 @@ import scala.collection
 object ZkUtils extends Logging {
   val ConsumersPath = "/consumers"
   val BrokerIdsPath = "/brokers/ids"
-  val BrokerTopicsPath = "/brokers/topics"
+  val BrokerTopicsPath = "/brokers/topics" // 该节点是persistent节点;zk中有全量的Topic信息;
   val TopicConfigPath = "/config/topics"
   val TopicConfigChangesPath = "/config/changes"
   val ControllerPath = "/controller"
@@ -501,7 +501,7 @@ object ZkUtils extends Logging {
     }
     ret
   }
-  // 这个方法以前还没注意到，get assigned replica list of topic;replica list 选举的数据源;
+  // 这个方法以前还没注意到，get assignment replica list of topic;replica list 选举的数据源;//topic首次创建时，持久化存储在zk中;
   def getReplicaAssignmentForTopics(zkClient: ZkClient, topics: Seq[String]): mutable.Map[TopicAndPartition, Seq[Int]] = {
     val ret = new mutable.HashMap[TopicAndPartition, Seq[Int]]
     topics.foreach { topic =>

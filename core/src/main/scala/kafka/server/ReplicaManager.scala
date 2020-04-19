@@ -400,7 +400,7 @@ class ReplicaManager(val config: KafkaConfig,
    *
    * If an unexpected error is thrown in this function, it will be propagated to KafkaApis where
    * the error message will be set on each partition since we do not know which partition caused it
-   *  TODO: the above may need to be fixed later
+   *  TODO: the above may need to be fixed later //记录 2020年4月13日（机房异常断电）的异常，broker.id=1上的分区，都不能成为leader;导致：failed due to Leader not local for partition
    */
   private def makeLeaders(controllerId: Int, epoch: Int,
                           partitionState: Map[Partition, PartitionStateInfo],
@@ -432,7 +432,7 @@ class ReplicaManager(val config: KafkaConfig,
           val errorMsg = ("Error on broker %d while processing LeaderAndIsr request correlationId %d received from controller %d" +
             " epoch %d for partition %s").format(localBrokerId, correlationId, controllerId, epoch,
                                                 TopicAndPartition(state._1.topic, state._1.partitionId))
-          stateChangeLogger.error(errorMsg, e)
+          stateChangeLogger.error(errorMsg, e) //state-change.log 记录 replica,partition state变化(状态机)的各种详情;若能早点读这个日志，问题能很快解决;
         }
         // Re-throw the exception for it to be caught in KafkaApis
         throw e
