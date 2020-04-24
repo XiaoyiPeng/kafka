@@ -269,7 +269,7 @@ class KafkaController(val config : KafkaConfig, zkClient: ZkClient, val brokerSt
                   replicaStateMachine.handleStateChanges(Set(PartitionAndReplica(topicAndPartition.topic,
                     topicAndPartition.partition, id)), OfflineReplica)
                 }
-              }
+              } // if replica refactor is 1, do nothing;
             }
           }
       }

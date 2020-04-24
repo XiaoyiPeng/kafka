@@ -266,7 +266,7 @@ class KafkaServer(val config: KafkaConfig, time: Time = SystemTime) extends Logg
       info("shutting down")
       val canShutdown = isShuttingDown.compareAndSet(false, true)
       if (canShutdown) {
-        Utils.swallow(controlledShutdown())
+        Utils.swallow(controlledShutdown()) // if broker shutdown by kill ${broker_pid}, then send request to controller;
         brokerState.newState(BrokerShuttingDown)
         if(socketServer != null)
           Utils.swallow(socketServer.shutdown())

@@ -369,7 +369,7 @@ class ReplicaManager(val config: KafkaConfig,
             responseMap.put((topic, partitionId), ErrorMapping.StaleLeaderEpochCode)
           }
         }
-        //把上述满足条件的Partitions分为两拨，一个应该变成leader，剩下的变成follower
+        //把上述满足条件的Partitions分为两拨，一个应该变成leader，剩下的变成follower;// 这些都是在 controller 端决定的。
         val partitionsTobeLeader = partitionState
           .filter{ case (partition, partitionStateInfo) => partitionStateInfo.leaderIsrAndControllerEpoch.leaderAndIsr.leader == config.brokerId}
         val partitionsToBeFollower = (partitionState -- partitionsTobeLeader.keys)
@@ -393,7 +393,7 @@ class ReplicaManager(val config: KafkaConfig,
 
   /*
    * Make the current broker to become leader for a given set of partitions by:
-   *
+   * attention:这里只是标识 replica 为leader,并干leader 该干的事情，replica 的leader选举权不在这里，在 controller端的 PartitionStateMachine;
    * 1. Stop fetchers for these partitions
    * 2. Update the partition metadata in cache
    * 3. Add these partitions to the leader partitions set
@@ -424,8 +424,8 @@ class ReplicaManager(val config: KafkaConfig,
       }
       // Update the partition information to be the leader
       partitionState.foreach{ case (partition, partitionStateInfo) =>
-        partition.makeLeader(controllerId, partitionStateInfo, correlationId, offsetManager)}
-
+        partition.makeLeader(controllerId, partitionStateInfo, correlationId, offsetManager)} //这里确如作者所说，有待完善，
+                                                                                              //不能因为一个partition 不能成为leader，导致其他的partition不能成为leader,不能被写入消息;
     } catch {
       case e: Throwable =>
         partitionState.foreach { state =>
@@ -433,7 +433,7 @@ class ReplicaManager(val config: KafkaConfig,
             " epoch %d for partition %s").format(localBrokerId, correlationId, controllerId, epoch,
                                                 TopicAndPartition(state._1.topic, state._1.partitionId))
           stateChangeLogger.error(errorMsg, e) //state-change.log 记录 replica,partition state变化(状态机)的各种详情;若能早点读这个日志，问题能很快解决;
-        }
+        }                                      // 即是:记录partition为什么不能变成 leader 的异常，这个错误信息也记录在 state-change.log 中;
         // Re-throw the exception for it to be caught in KafkaApis
         throw e
     }
@@ -510,9 +510,9 @@ class ReplicaManager(val config: KafkaConfig,
           "%d epoch %d with correlation id %d for partition %s")
           .format(localBrokerId, controllerId, epoch, correlationId, TopicAndPartition(partition.topic, partition.partitionId)))
       }
-
+      // file 'replication-offset-checkpoint ' 作用:一般认为是:replication-offset-checkpoint is the internal broker log where Kafka tracks which messages (from-to offset) were successfully replicated to other brokers.
       logManager.truncateTo(partitionsToMakeFollower.map(partition => (new TopicAndPartition(partition), partition.getOrCreateReplica().highWatermark.messageOffset)).toMap)
-
+      // 上面句子中的 to 修改为 from 似乎更为恰当，replica成为 follower时，从 leader 处开始同步的offset,从这个文件中找;
       partitionsToMakeFollower.foreach { partition =>
         stateChangeLogger.trace(("Broker %d truncated logs and checkpointed recovery boundaries for partition [%s,%d] as part of " +
           "become-follower request with correlation id %d from controller %d epoch %d").format(localBrokerId,
