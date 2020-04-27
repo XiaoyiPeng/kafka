@@ -63,7 +63,7 @@ class DelayedRequest(val keys: Seq[Any], val request: RequestChannel.Request, de
  * The second function is
  *   def expire(delayed: T)
  * this function handles delayed requests that have hit their time limit without being satisfied.
- *
+ * for 2.x kafka,based hashed hierarchical time wheel; by pl
  */
 abstract class RequestPurgatory[T <: DelayedRequest](brokerId: Int = 0, purgeInterval: Int = 1000)
         extends Logging with KafkaMetricsGroup {

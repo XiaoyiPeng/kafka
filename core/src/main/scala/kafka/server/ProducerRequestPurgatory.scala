@@ -25,7 +25,7 @@ import kafka.network.{BoundedByteBufferSend, RequestChannel}
 import java.util.concurrent.TimeUnit
 
 /**
- * The purgatory holding delayed producer requests
+ * The purgatory holding delayed producer requests; for 2.x kafka,based hashed hierarchical time wheel
  */
 class ProducerRequestPurgatory(replicaManager: ReplicaManager, offsetManager: OffsetManager, requestChannel: RequestChannel)
   extends RequestPurgatory[DelayedProduce](replicaManager.config.brokerId, replicaManager.config.producerPurgatoryPurgeIntervalRequests) {

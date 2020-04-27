@@ -39,7 +39,7 @@ class DelayedProduce(override val keys: Seq[TopicAndPartition],
                      override val request: RequestChannel.Request,
                      override val delayMs: Long,
                      val produce: ProducerRequest,
-                     val partitionStatus: Map[TopicAndPartition, DelayedProduceResponseStatus],
+                     val partitionStatus: Map[TopicAndPartition, DelayedProduceResponseStatus], // local append(replica leader write)
                      val offsetCommitRequestOpt: Option[OffsetCommitRequest] = None)
   extends DelayedRequest(keys, request, delayMs) with Logging {
 

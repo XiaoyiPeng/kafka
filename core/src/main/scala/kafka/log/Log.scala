@@ -62,11 +62,11 @@ class Log(val dir: File,
   /* last time it was flushed */
   private val lastflushedTime = new AtomicLong(time.milliseconds)
 
-  /* the actual segments of the log */
+  /* the actual segments of the log */ // (${baseOffset}, LogSegment)
   private val segments: ConcurrentNavigableMap[java.lang.Long, LogSegment] = new ConcurrentSkipListMap[java.lang.Long, LogSegment]
   loadSegments()
   
-  /* Calculate the offset of the next message */
+  /* Calculate the offset of the next message */ //这个offset尚未填充message;
   @volatile var nextOffsetMetadata = new LogOffsetMetadata(activeSegment.nextOffset(), activeSegment.baseOffset, activeSegment.size.toInt)
 
   val topicAndPartition: TopicAndPartition = Log.parseTopicPartitionName(name)

@@ -59,11 +59,11 @@ class KafkaApis(val requestChannel: RequestChannel,
         case RequestKeys.ProduceKey => handleProducerOrOffsetCommitRequest(request) // from producer;
         case RequestKeys.FetchKey => handleFetchRequest(request)
         case RequestKeys.OffsetsKey => handleOffsetRequest(request)
-        case RequestKeys.MetadataKey => handleTopicMetadataRequest(request) // from producer;
-        case RequestKeys.LeaderAndIsrKey => handleLeaderAndIsrRequest(request)
+        case RequestKeys.MetadataKey => handleTopicMetadataRequest(request) // from producer,to update metadata for client;
+        case RequestKeys.LeaderAndIsrKey => handleLeaderAndIsrRequest(request) // for scaling up/down broker or controller (de)register;
         case RequestKeys.StopReplicaKey => handleStopReplicaRequest(request)
-        case RequestKeys.UpdateMetadataKey => handleUpdateMetadataRequest(request) // from controller;
-        case RequestKeys.ControlledShutdownKey => handleControlledShutdownRequest(request)
+        case RequestKeys.UpdateMetadataKey => handleUpdateMetadataRequest(request) // from controller, to update metadata for broker;
+        case RequestKeys.ControlledShutdownKey => handleControlledShutdownRequest(request) //for broker to shutdown gracefully;
         case RequestKeys.OffsetCommitKey => handleOffsetCommitRequest(request)
         case RequestKeys.OffsetFetchKey => handleOffsetFetchRequest(request)
         case RequestKeys.ConsumerMetadataKey => handleConsumerMetadataRequest(request)
